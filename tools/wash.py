@@ -15,7 +15,7 @@ class ImageDialog(Dialog):
         super().__init__(parent, title)
 
     def body(self, master):
-        Label(master, image=self.image).pack()
+        Label(master, image = self.image).pack()
         return None
     
     def apply(self):
@@ -26,7 +26,7 @@ def wash(dir_path):
     chosing the proper image of faces from your dataset
     """
     selected_dirs = []
-    lens = len([dirs for dirs, _, _ in os.walk(dir_path)])
+    lens = len([dirs for dirs, _, _ in os.walk(dir_path)]) - 1
     with alive_bar(lens, title = "data processing") as bar:
         for subdir, _, _ in os.walk(dir_path):
             image_files = [f for f in os.listdir(subdir) if f.endswith('.jpg') or f.endswith('.png')]

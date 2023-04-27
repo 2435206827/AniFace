@@ -1,36 +1,16 @@
 # AniFace
 
-#### Description
+### Description
 A face swapping project based on FaceDancer
 
-#### Software Architecture
-Software architecture description
+### Installation
 
-#### Installation
+1.  `!cd AniFace`
+2.  `!pip install . -e requirement.txt`
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+### Dataset Cleaning
+1.  Using `!python .\tools\wash.py --dataset_path "your\dataset\path" --output "path\of\result.txt"`, a random image will be extracted from each subdirectory in the dataset and asked continuously whether to keep this subdirectory. If Yes is selected, the subdirectory will be added to result.txt
 
-#### Instructions
+### Instructions
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+developing
