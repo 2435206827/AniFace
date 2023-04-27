@@ -1,12 +1,10 @@
 import os
 import random
-import tkinter as tk
+import argparse
 from tkinter.simpledialog import Dialog
 from tkinter import Tk, Label
 from PIL import ImageTk, Image
 from alive_progress import alive_bar
-
-root = Tk()
 
 class ImageDialog(Dialog):
     """
@@ -44,7 +42,17 @@ def wash(dir_path):
     print("Processing Successful")
     return selected_dirs
 
-s = wash("D:\\icf\\icartoonface_rectrain_02000")
-root.mainloop()
-f = open("D:\\icf\\2000.txt", "w")
-f.write("\n".join(s))
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description = "")
+    parser.add_argument("--dataset_path", type = str, required = True, help = "path of your dataset")
+    parser.add_argument("--output", type = str, required = True, help = "file path of the result")
+
+    args = parser.parse_args().__dict__
+
+    root = Tk()
+    s = wash(args["dataset_path"])
+
+    root.mainloop()
+
+    f = open(args["output"], "w")
+    f.write("\n".join(s))
