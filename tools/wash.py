@@ -5,6 +5,7 @@ from tkinter.simpledialog import Dialog
 from tkinter import Tk, Label
 from PIL import ImageTk, Image
 from alive_progress import alive_bar
+from colorama import Fore
 
 class ImageDialog(Dialog):
     """
@@ -25,9 +26,12 @@ def wash(dir_path):
     """
     chosing the proper image of faces from your dataset
     """
+
+    print(Fore.LIGHTYELLOW_EX + "Starting Process")
+
     selected_dirs = []
     lens = len([dirs for dirs, _, _ in os.walk(dir_path)]) - 1
-    with alive_bar(lens, title = "data processing") as bar:
+    with alive_bar(lens, title = Fore.WHITE + "data processing") as bar:
         for subdir, _, _ in os.walk(dir_path):
             image_files = [f for f in os.listdir(subdir) if f.endswith('.jpg') or f.endswith('.png')]
             if image_files:
@@ -39,7 +43,7 @@ def wash(dir_path):
                     selected_dirs.append(subdir)
                 bar()
 
-    print("Processing Successful")
+    print(Fore.GREEN + "Processing Successful" + Fore.WHITE)
     return selected_dirs
 
 if __name__ == "__main__":
