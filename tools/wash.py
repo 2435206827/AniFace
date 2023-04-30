@@ -27,8 +27,6 @@ def wash(dir_path):
     chosing the proper image of faces from your dataset
     """
 
-    print(Fore.LIGHTYELLOW_EX + "Starting Process")
-
     selected_dirs = []
     lens = len([dirs for dirs, _, _ in os.walk(dir_path)]) - 1
     with alive_bar(lens, title = Fore.WHITE + "data processing") as bar:
@@ -43,7 +41,6 @@ def wash(dir_path):
                     selected_dirs.append(subdir)
                 bar()
 
-    print(Fore.GREEN + "Processing Successful" + Fore.WHITE)
     return selected_dirs
 
 if __name__ == "__main__":
@@ -53,9 +50,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args().__dict__
 
+    print(Fore.LIGHTYELLOW_EX + "Starting Process" + Fore.WHITE)
     root = Tk()
     s = wash(args["dataset_path"])
-
+    print(Fore.GREEN + "Processing Successful" + Fore.WHITE)
     root.mainloop()
 
     f = open(args["output"], "w")
