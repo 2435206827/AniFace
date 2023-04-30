@@ -21,6 +21,6 @@ color_dict = {
 
 def form(msg: str):
     for color_txt in color_dict.keys():
-        if msg.find(color_txt) != -1:
-            msg = msg.replace(color_txt, color_dict[color_txt])
+        if msg.find("<" + color_txt + ">") != -1:
+            msg = msg.replace("<" + color_txt + ">", color_dict[color_txt])
     return msg
