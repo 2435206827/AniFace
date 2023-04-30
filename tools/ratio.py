@@ -1,11 +1,12 @@
 import sys
+sys.path.append(".")
 sys.path.append("..")
 
 import os
 import argparse
 import itertools
+from tqdm import tqdm
 from PIL import Image
-from alive_progress import alive_bar
 import torchvision.transforms as transforms
 from utils.form import form
 
@@ -19,11 +20,10 @@ def _pad_calc(H, W):
     else:
         return (0, 0, 0, 0)
 
-
 def ratio_process(directory, size, ratio, delete):
     lens = len(list(itertools.chain.from_iterable([f for f in [files for _, _, files in os.walk(directory)]])))
     tot, errs, rm_list = 0, 0, []
-    with alive_bar(lens, title = "data processing") as bar:
+    with tqdm(total = lens, desc = "data processing", leave = True) as bar:
         for subdir, _, files in os.walk(directory):
             for file in files:
                 if file.endswith('.jpg') or file.endswith('.png'):
@@ -45,7 +45,7 @@ def ratio_process(directory, size, ratio, delete):
                         errs += 1
                         print(e)
                         rm_list.append(image_path) if delete else None
-                bar()
+                bar.update()
 
     for p in rm_list:
         os.remove(p)

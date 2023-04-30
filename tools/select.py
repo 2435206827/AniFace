@@ -1,14 +1,15 @@
 import sys
+sys.path.append(".")
 sys.path.append("..")
 
 import os
 import random
 import argparse
+from tqdm import tqdm
 from utils.form import form
 from tkinter.simpledialog import Dialog
 from tkinter import Tk, Label
 from PIL import ImageTk, Image
-from alive_progress import alive_bar
 
 class ImageDialog(Dialog):
     """
@@ -31,7 +32,7 @@ def wash(dir_path):
     """
     selected_dirs = []
     lens = len([dirs for dirs, _, _ in os.walk(dir_path)]) - 1
-    with alive_bar(lens, title = "data processing") as bar:
+    with tqdm(total = lens, desc = "data processing", leave = True) as bar:
         for subdir, _, _ in os.walk(dir_path):
             image_files = [f for f in os.listdir(subdir) if f.endswith('.jpg') or f.endswith('.png')]
             if image_files:
@@ -41,7 +42,7 @@ def wash(dir_path):
                 dialog = ImageDialog(root, 'is it a human face?', img)
                 if dialog.result:
                     selected_dirs.append(subdir)
-                bar()
+                bar.update()
 
     return selected_dirs
 
