@@ -53,7 +53,7 @@ def ratio_process(directory, size, ratio, delete):
     return tot, errs
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Fill & build all images in the dataset to a uniform size.")
+    parser = argparse.ArgumentParser(description = "Fill & trim all images in the dataset to a uniform size.")
     parser.add_argument("-p", "--dataset_path", type = str, required = True, help = "path of your dataset")
     parser.add_argument("-r", "--ratio", type = float, default = 1.1, help = "The aspect ratio threshold >= 1, above which the image will no longer be scaled")
     parser.add_argument("-s", "--size", type = int, default = 256, help = "The w&h for output")
