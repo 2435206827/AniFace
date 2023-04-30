@@ -15,6 +15,9 @@ A FaceSwap experimental project based on FaceDancer architecture suitable for an
 2. `!python .\tools\ratio.py`
     - Fill and trim all images in the dataset to a uniform size
     - e.g. `!python .\tools\ratio.py --dataset_path "your\dataset\path" --size 256 --ratio 1.1 --del`
+3. `!python .\tools\less.py`
+    - Delete sub directories with few images
+    - e.g. `!python .\tools\less.py --dataset_path "your\dataset\path" --num 114514`
 
 ### Instructions
 

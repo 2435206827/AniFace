@@ -16,6 +16,9 @@
 2. `!python .\tools\ratio.py`
     - 将数据集所有图片填充并修剪为统一的大小
     - 示例 `!python .\tools\ratio.py --dataset_path "your\dataset\path" --size 256 --ratio 1.1 --del`
+3. `!python .\tools\less.py`
+    - 删除图像数较少的子目录
+    - 示例 `!python .\tools\less.py --dataset_path "your\dataset\path" --num 114514`
 
 ### 说明
 
