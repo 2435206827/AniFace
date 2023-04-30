@@ -19,7 +19,8 @@ color_dict = {
     "magenta_ex": Fore.LIGHTMAGENTA_EX
 }
 
-def form(msg: str):
+def form(msg: str, endwith = "white"):
+    msg += endwith
     for color_txt in color_dict.keys():
         if msg.find("<" + color_txt + ">") != -1:
             msg = msg.replace("<" + color_txt + ">", color_dict[color_txt])
