@@ -1,0 +1,3 @@
+put your pretrained arcface model here
+e.g.
+arcface_10epoch.pth
