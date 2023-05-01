@@ -20,11 +20,17 @@ class mapping(nn):
         return x
 
 class AFFA_module(nn):
-    def __init__(self, in_c, out_c):
+    def __init__(self, in_c, s):
+        """
+        param:
+        in_c is the channel of input
+        s is the size of input (equals to W or H)
+        """
         super(AFFA_module, self).__init__()
-        self.conv1 = nn.Conv2d(in_c, out_c, kernel_size = 3, padding = 1)
-        self.norm = nn.InstanceNorm2d(out_c)
-        self.conv2 = nn.Conv2d(out_c, 1, kernel_size = 1)
+        self.size = s
+        self.conv1 = nn.Conv2d(in_c, in_c, kernel_size = 3, padding = 1)
+        self.norm = nn.InstanceNorm2d(in_c)
+        self.conv2 = nn.Conv2d(in_c, 1, kernel_size = 1)
 
     def forward(self, x, z_a):
         m = torch.cat([x, z_a], dim = 1)
@@ -32,6 +38,7 @@ class AFFA_module(nn):
         m = nn.LeakyReLU(0.2)(m)
         m = self.norm(m)
         m = self.conv2(m)
+        m = torch.reshape(m, (-1, self.size, self.size))
         m = nn.Sigmoid()(m)
         return torch.mul(x, m) + torch.mul(z_a, 1 - m)
 
