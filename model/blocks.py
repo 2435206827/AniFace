@@ -122,12 +122,28 @@ class RB(nn):
         return m + m2
 
 class AFFA_RB(nn):
-    def __init__(self, c):
+    def __init__(self, c_in, c_out, s, resample = "down"):
         """
         param:
-        c is the channel of input
+        c_in is the channel of input
+        c_out is the channel of output
+        s is the size of input
+        resample is whether down or up sample
         """
         super(AFFA_RB, self).__init__()
+        self.AFFA = AFFA_module(c_in, s)
+        self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
+        self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
+        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
 
     def forward(self, x, z_a, w_id):
-        pass 
+        m = self.AFFA(x, z_a)
+        m = AdaIN()(m, w_id)
+        m = nn.LeakyReLU(0.2)(m)
+        m = self.conv(m)
+        m = self.resample(m)
+
+        m2 = self.res_conv(x)
+        m2 = self.resample(m2)
+
+        return m + m2
