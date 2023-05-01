@@ -147,3 +147,12 @@ class AFFA_RB(nn):
         m2 = self.resample(m2)
 
         return m + m2
+
+class Concat_RB(nn):
+    def __init__(self):
+        """
+        """
+        pass
+
+    def forward(self, x):
+        pass
