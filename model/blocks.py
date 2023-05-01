@@ -20,17 +20,17 @@ class mapping(nn):
         return x
 
 class AFFA_module(nn):
-    def __init__(self, in_c, s):
+    def __init__(self, c, s):
         """
         param:
-        in_c is the channel of input
+        c is the channel of input
         s is the size of input (equals to W or H)
         """
         super(AFFA_module, self).__init__()
         self.size = s
-        self.conv1 = nn.Conv2d(in_c, in_c, kernel_size = 3, padding = 1)
-        self.norm = nn.InstanceNorm2d(in_c)
-        self.conv2 = nn.Conv2d(in_c, 1, kernel_size = 1)
+        self.conv1 = nn.Conv2d(c, c, kernel_size = 3, padding = 1)
+        self.norm = nn.InstanceNorm2d(c)
+        self.conv2 = nn.Conv2d(c, 1, kernel_size = 1)
 
     def forward(self, x, z_a):
         m = torch.cat([x, z_a], dim = 1)
