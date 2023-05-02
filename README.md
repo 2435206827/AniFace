@@ -20,6 +20,12 @@
     - 删除图像数较少的子目录
     - 示例 `!python .\tools\less.py --dataset_path "your\dataset\path" --num 114514`
 
+### 准备预训练模型
+
+1. 将预训练的ResNet放到 `./model/ResNet`
+2. 将预训练的ArcFace放到 `./model/arcface`
+    - 可以使用本项目进行训练（默认使用ResNet-50 backbone）
+
 ### 说明
 
 developing

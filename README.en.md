@@ -19,6 +19,12 @@ A FaceSwap experimental project based on FaceDancer architecture suitable for an
     - Delete sub directories with few images
     - e.g. `!python .\tools\less.py --dataset_path "your\dataset\path" --num 114514`
 
+### Prepare pretrained models
+
+1. Place the pretrained ResNet in `./model/ResNet`
+2. Place the pre trained ArcFace in `./model/arcface`
+    - You can use this project for training (default to ResNet-50 backbone)
+
 ### Instructions
 
 developing
