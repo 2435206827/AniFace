@@ -6,12 +6,9 @@ from torchvision import transforms as T
 
 class Dataset(data.Dataset):
 
-    def __init__(self, root, data_list_file, phase = "train"):
+    def __init__(self, root, imgs, phase = "train"):
         self.phase = phase
         self.input_shape = (3, 128, 128)
-
-        with open(os.path.join(data_list_file), 'r') as fd:
-            imgs = fd.readlines()
 
         imgs = [os.path.join(root, img[: -1]) for img in imgs]
         self.imgs = np.random.permutation(imgs)

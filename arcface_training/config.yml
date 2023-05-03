@@ -6,7 +6,6 @@ metric: "arc_margin"
 loss: "focal_loss"
 
 train_root: "/content/icf"
-train_list: "/content/train_list.txt"
 
 checkpoints_path: "/content/checkpoints"
 save_interval: 5

@@ -22,14 +22,33 @@ def save_model(model, save_path, name, iter_cnt):
     print("model was saved.")
     return save_name
 
+def list_images(directory):
+    ls = []
+    subdirs = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
+    for i, subdir in enumerate(subdirs):
+        subdir_path = os.path.join(directory, subdir)
+        for file in os.listdir(subdir_path):
+            if file.endswith('.png') or file.endswith('.jpg'):
+                ls.append(str(os.path.join(subdir, file)) + " " + str(i + 1))
+    return ls
+
+def get_classes_num(directory):
+    subdirs = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
+    return len(subdirs) + 1
+
 if __name__ == "__main__":
 
-    with open('config.yml') as config_file:
-        opt = yaml.load(config_file)
+    try:
+        with open('config.yml') as config_file:
+            opt = yaml.load(config_file)
+    except Exception as e:
+        print(e)
+        assert False, "Fail to read config file"
 
     device = torch.device("cuda")
+    root = opt["train_root"]
 
-    train_dataset = Dataset(opt["train_root"], opt["train_list"])
+    train_dataset = Dataset(root, list_images(root))
     trainloader = data.DataLoader(train_dataset, batch_size = opt["train_batch_size"], shuffle = True, num_workers = opt["num_workers"])
 
     print('{} train iters per epoch:'.format(len(trainloader)))
@@ -51,15 +70,17 @@ if __name__ == "__main__":
         nn.init.xavier_uniform_(model.fc.weight)
     else:
         pass
+    
+    num_classes = get_classes_num(root)
 
     if opt["metric"] == 'add_margin':
-        metric_fc = AddMarginProduct(512, opt["num_classes"], s = 30, m = 0.35)
+        metric_fc = AddMarginProduct(512, num_classes, s = 30, m = 0.35)
     elif opt["metric"] == 'arc_margin':
-        metric_fc = ArcMarginProduct(512, opt["num_classes"], s = 30, m = 0.5)
+        metric_fc = ArcMarginProduct(512, num_classes, s = 30, m = 0.5)
     elif opt["metric"] == 'sphere':
-        metric_fc = SphereProduct(512, opt["num_classes"], m = 4)
+        metric_fc = SphereProduct(512, num_classes, m = 4)
     else:
-        metric_fc = nn.Linear(512, opt["num_classes"])
+        metric_fc = nn.Linear(512, num_classes)
 
     print(model)
     model.to(device)
