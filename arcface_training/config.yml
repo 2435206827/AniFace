@@ -1,6 +1,5 @@
 backbone: "resnet50"  # ["resnet18", "resnet34", "resnet50"]
 pretrained: True
-num_classes: 1001 # num of classes
 metric: "arc_margin"
 loss: "focal_loss"  # ["focal_loss", "cross_entropy_loss"]
 
