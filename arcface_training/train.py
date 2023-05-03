@@ -17,7 +17,7 @@ from model.resnet import *
 from data.dataset import Dataset
 
 def save_model(model, save_path, name, iter_cnt):
-    save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
+    save_name = os.path.join(save_path, name + "_" + str(iter_cnt) + ".pth")
     torch.save(model.state_dict(), save_name)
     return save_name
 
@@ -27,7 +27,7 @@ def list_images(directory):
     for i, subdir in enumerate(subdirs):
         subdir_path = os.path.join(directory, subdir)
         for file in os.listdir(subdir_path):
-            if file.endswith('.png') or file.endswith('.jpg'):
+            if file.endswith(".png") or file.endswith(".jpg"):
                 ls.append(str(os.path.join(subdir, file)) + " " + str(i + 1))
     return ls
 
@@ -36,68 +36,76 @@ def get_classes_num(directory):
     return len(subdirs) + 1
 
 if __name__ == "__main__":
-
+    # config
     try:
-        with open('config.yml') as config_file:
+        with open("config.yml") as config_file:
             opt = yaml.load(config_file)
     except Exception as e:
         print(e)
         assert False, "Fail to read config file"
 
+    # load config & prepare dataset
     device = torch.device("cuda")
     root = opt["train_root"]
 
     train_dataset = Dataset(root, list_images(root))
     trainloader = data.DataLoader(train_dataset, batch_size = opt["train_batch_size"], shuffle = True, num_workers = opt["num_workers"])
 
-    print('{} train iters per epoch:'.format(len(trainloader)))
+    print("{} train iters per epoch:".format(len(trainloader)))
 
-    if opt["loss"] == 'focal_loss':
+    # loss
+    if opt["loss"] == "focal_loss":
         criterion = FocalLoss(gamma = 2)
-    else:
+    elif opt["loss"] == "cross_entropy_loss":
         criterion = torch.nn.CrossEntropyLoss()
+    else:
+        assert False, "Invaild loss function: {}".format(opt["loss"])
 
-    if opt["backbone"] == 'resnet18':
+    # backbone
+    if opt["backbone"] == "resnet18":
         model = torchvision.models.resnet18(pretrained = opt["pretrained"])
-    elif opt["backbone"] == 'resnet34':
+    elif opt["backbone"] == "resnet34":
         model = torchvision.models.resnet34(pretrained = opt["pretrained"])
-    elif opt["backbone"] == 'resnet50':
+    elif opt["backbone"] == "resnet50":
         model = torchvision.models.resnet50(pretrained = opt["pretrained"])
     else:
-        assert False, "Invaild model \"{}\"".format(opt["backbone"])
+        assert False, "Invaild model: {}".format(opt["backbone"])
     model.fc = nn.Linear(model.fc.in_features, 512)
     nn.init.xavier_uniform_(model.fc.weight)
     
     num_classes = get_classes_num(root)
 
-    if opt["metric"] == 'add_margin':
+    # metric
+    if opt["metric"] == "add_margin":
         metric_fc = AddMarginProduct(512, num_classes, s = 30, m = 0.35)
-    elif opt["metric"] == 'arc_margin':
+    elif opt["metric"] == "arc_margin":
         metric_fc = ArcMarginProduct(512, num_classes, s = 30, m = 0.5)
-    elif opt["metric"] == 'sphere':
+    elif opt["metric"] == "sphere":
         metric_fc = SphereProduct(512, num_classes, m = 4)
     else:
         metric_fc = nn.Linear(512, num_classes)
 
+    # optimizer & scheduler
+    if opt["optimizer"] == "sgd":
+        optimizer = torch.optim.SGD([
+            {"params": model.parameters()}, 
+            {"params": metric_fc.parameters()}
+        ], lr = opt["lr"], weight_decay = opt["weight_decay"])
+    elif opt["optimizer"] == "Adam":
+        optimizer = torch.optim.Adam([
+            {"params": model.parameters()}, 
+            {"params": metric_fc.parameters()}
+        ], lr = opt["lr"], weight_decay = opt["weight_decay"])
+    else:
+        assert False, "illegal optimizer"
+    scheduler = StepLR(optimizer, step_size = opt["lr_step"], gamma = 0.1)
+
+    # start to train
     print(model)
     model.to(device)
     model = DataParallel(model)
     metric_fc.to(device)
     metric_fc = DataParallel(metric_fc)
-
-    if opt["optimizer"] == "sgd":
-        optimizer = torch.optim.SGD([
-            {'params': model.parameters()}, 
-            {'params': metric_fc.parameters()}
-        ], lr = opt["lr"], weight_decay = opt["weight_decay"])
-    elif opt["optimizer"] == "Adam":
-        optimizer = torch.optim.Adam([
-            {'params': model.parameters()}, 
-            {'params': metric_fc.parameters()}
-        ], lr = opt["lr"], weight_decay = opt["weight_decay"])
-    else:
-        assert False, "illegal optimizer"
-    scheduler = StepLR(optimizer, step_size = opt["lr_step"], gamma = 0.1)
 
     start = time.time()
     for i in range(opt["max_epoch"]):
@@ -124,7 +132,7 @@ if __name__ == "__main__":
                 acc = np.mean((output == label).astype(int))
                 speed = opt["print_freq"] / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
-                print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, iters, speed, loss.item(), acc))
+                print("{} train epoch {} iter {} {} iters/s loss {} acc {}".format(time_str, i, iters, speed, loss.item(), acc))
 
                 start = time.time()
 
