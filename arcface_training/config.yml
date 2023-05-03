@@ -1,6 +1,5 @@
 backbone: "resnet50"  # ["resnet18", "resnet34", "resnet50"]
 pretrained: True
-classify: "softmax"
 num_classes: 1001 # num of classes
 metric: "arc_margin"
 loss: "focal_loss"  # ["focal_loss", "cross_entropy_loss"]
@@ -11,14 +10,9 @@ save_interval: 5
 train_batch_size: 128  # batch size
 
 optimizer: "sgd"  # "sgd" or "Adam"
-
-use_gpu: True
-gpu_id: "0, 1"
 num_workers: 4  # workers for loading data
 print_freq: 100  # print info every N batch
-
 max_epoch: 50
 lr: 0.1  # initial learning rate
 lr_step: 10
-lr_decay: 0.95  # when val_loss increase, lr: lr * lr_decay
 weight_decay: 0.0005
