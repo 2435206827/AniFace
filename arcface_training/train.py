@@ -19,7 +19,6 @@ from data.dataset import Dataset
 def save_model(model, save_path, name, iter_cnt):
     save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
     torch.save(model.state_dict(), save_name)
-    print("model was saved.")
     return save_name
 
 def list_images(directory):
@@ -58,18 +57,16 @@ if __name__ == "__main__":
     else:
         criterion = torch.nn.CrossEntropyLoss()
 
-    if opt["download"]:
-        if opt["backbone"] == 'resnet18':
-            model = torchvision.models.resnet18(pretrained = True)
-        elif opt["backbone"] == 'resnet34':
-            model = torchvision.models.resnet34(pretrained = True)
-        elif opt["backbone"] == 'resnet50':
-            model = torchvision.models.resnet50(pretrained = True)
-
-        model.fc = nn.Linear(model.fc.in_features, 512)
-        nn.init.xavier_uniform_(model.fc.weight)
+    if opt["backbone"] == 'resnet18':
+        model = torchvision.models.resnet18(pretrained = opt["pretrained"])
+    elif opt["backbone"] == 'resnet34':
+        model = torchvision.models.resnet34(pretrained = opt["pretrained"])
+    elif opt["backbone"] == 'resnet50':
+        model = torchvision.models.resnet50(pretrained = opt["pretrained"])
     else:
-        pass
+        assert False, "Invaild model \"{}\"".format(opt["backbone"])
+    model.fc = nn.Linear(model.fc.in_features, 512)
+    nn.init.xavier_uniform_(model.fc.weight)
     
     num_classes = get_classes_num(root)
 
@@ -88,16 +85,18 @@ if __name__ == "__main__":
     metric_fc.to(device)
     metric_fc = DataParallel(metric_fc)
 
-    if opt["optimizer"] == 'sgd':
+    if opt["optimizer"] == "sgd":
         optimizer = torch.optim.SGD([
             {'params': model.parameters()}, 
             {'params': metric_fc.parameters()}
         ], lr = opt["lr"], weight_decay = opt["weight_decay"])
-    else:
+    elif opt["optimizer"] == "Adam":
         optimizer = torch.optim.Adam([
             {'params': model.parameters()}, 
             {'params': metric_fc.parameters()}
         ], lr = opt["lr"], weight_decay = opt["weight_decay"])
+    else:
+        assert False, "illegal optimizer"
     scheduler = StepLR(optimizer, step_size = opt["lr_step"], gamma = 0.1)
 
     start = time.time()
@@ -125,9 +124,12 @@ if __name__ == "__main__":
                 acc = np.mean((output == label).astype(int))
                 speed = opt["print_freq"] / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
-                print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, ii, speed, loss.item(), acc))
+                print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, iters, speed, loss.item(), acc))
 
                 start = time.time()
 
         if i % opt["save_interval"] == 0 or i == opt["max_epoch"]:
+            if not os.path.exists(opt["checkpoints_path"]):
+                os.makedirs(opt["checkpoints_path"])
             save_model(model, opt["checkpoints_path"], opt["backbone"], i)
+            print("model was saved.")
