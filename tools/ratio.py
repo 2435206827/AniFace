@@ -26,11 +26,16 @@ def ratio_process(directory, size, ratio, delete):
     with tqdm(total = lens, desc = "data processing", leave = True) as bar:
         for subdir, _, files in os.walk(directory):
             for file in files:
+                
                 if file.endswith('.jpg') or file.endswith('.png'):
                     tot += 1
                     try:
                         image_path = os.path.join(subdir, file)
                         image = Image.open(image_path)
+
+                        if image.mode != "RGB":
+                            raise Exception("{} is not in channels of RGB".format(tot))
+                        
                         width, height = image.size
                         aspect_ratio = max(width / height, height / width)
                         if aspect_ratio <= ratio:
@@ -41,6 +46,7 @@ def ratio_process(directory, size, ratio, delete):
                         else:
                             image = transforms.Resize((size, size))(image)
                         image.save(image_path)
+
                     except Exception as e:
                         errs += 1
                         print(e)
@@ -53,11 +59,11 @@ def ratio_process(directory, size, ratio, delete):
     return tot, errs
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Fill & trim all images in the dataset to a uniform size.")
+    parser = argparse.ArgumentParser(description = "Fill & trim all images in the dataset to a uniform size, and detect images which are not in RGB (3 channels)")
     parser.add_argument("-p", "--dataset_path", type = str, required = True, help = "path of your dataset")
     parser.add_argument("-r", "--ratio", type = float, default = 1.1, help = "The aspect ratio threshold >= 1, above which the image will no longer be scaled")
     parser.add_argument("-s", "--size", type = int, default = 256, help = "The w&h for output")
-    parser.add_argument("-d", "--del", action = "store_true", help = "Delete images that failed processing")
+    parser.add_argument("-d", "--del", action = "store_true", help = "Delete images which are failed to been process")
     # parser.add_argument("-q", "--quiet", action = "store_false", help = "echo quiet")
 
     args = parser.parse_args().__dict__
