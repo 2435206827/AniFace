@@ -20,8 +20,6 @@ class mapping(nn):
         x = self.fc4(x)
         return x
 
-import torch
-
 class AdaIN:
     # https://blog.csdn.net/weixin_35576881/article/details/91563347
 
@@ -149,10 +147,26 @@ class AFFA_RB(nn):
         return m + m2
 
 class Concat_RB(nn):
-    def __init__(self):
+    def __init__(self, c_in, c_out, resample = "down"):
         """
+        param:
+        c_in is the channel of input
+        c_out is the channel of output
+        s is the size of input
+        resample is whether down or up sample
         """
-        pass
+        super(AFFA_RB, self).__init__()
+        self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
+        self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
+        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
 
-    def forward(self, x):
-        pass
+    def forward(self, x, z_a, w_id):
+        m = torch.cat([x, z_a], 1)
+        m = AdaIN()(m, w_id)
+        m = nn.LeakyReLU(0.2)(m)
+        m = self.conv(m)
+        m = self.resample(m)
+
+        m2 = self.res_conv(x)
+        m2 = self.resample(m2)
+        return m + m2
