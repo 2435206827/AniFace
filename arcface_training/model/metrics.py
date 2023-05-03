@@ -14,7 +14,7 @@ class ArcMarginProduct(nn.Module):
 
             cos(theta + m)
         """
-    def __init__(self, in_features, out_features, s=30.0, m=0.50, easy_margin=True):
+    def __init__(self, in_features, out_features, s = 30.0, m = 0.50, easy_margin = True):
         super(ArcMarginProduct, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -39,7 +39,7 @@ class ArcMarginProduct(nn.Module):
         else:
             phi = torch.where(cosine > self.th, phi, cosine - self.mm)
         # --------------------------- convert label to one-hot ---------------------------
-        # one_hot = torch.zeros(cosine.size(), requires_grad=True, device='cuda')
+        # one_hot = torch.zeros(cosine.size(), requires_grad = True, device='cuda')
         one_hot = torch.zeros(cosine.size(), device='cuda')
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
         # -------------torch.where(out_i = {x_i if condition_i else y_i) -------------
@@ -48,7 +48,6 @@ class ArcMarginProduct(nn.Module):
         # print(output)
 
         return output
-
 
 class AddMarginProduct(nn.Module):
     r"""Implement of large margin cosine distance: :
@@ -60,7 +59,7 @@ class AddMarginProduct(nn.Module):
         cos(theta) - m
     """
 
-    def __init__(self, in_features, out_features, s=30.0, m=0.40):
+    def __init__(self, in_features, out_features, s = 30.0, m = 0.40):
         super(AddMarginProduct, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -86,21 +85,21 @@ class AddMarginProduct(nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + '(' \
-               + 'in_features=' + str(self.in_features) \
-               + ', out_features=' + str(self.out_features) \
-               + ', s=' + str(self.s) \
-               + ', m=' + str(self.m) + ')'
+            + 'in_features = ' + str(self.in_features) \
+            + ', out_features = ' + str(self.out_features) \
+            + ', s = ' + str(self.s) \
+            + ', m = ' + str(self.m) + ')'
 
 
 class SphereProduct(nn.Module):
-    r"""Implement of large margin cosine distance: :
+    """Implement of large margin cosine distance: :
     Args:
         in_features: size of each input sample
         out_features: size of each output sample
         m: margin
-        cos(m*theta)
+        cos(m * theta)
     """
-    def __init__(self, in_features, out_features, m=4):
+    def __init__(self, in_features, out_features, m = 4):
         super(SphereProduct, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -124,7 +123,7 @@ class SphereProduct(nn.Module):
         ]
 
     def forward(self, input, label):
-        # lambda = max(lambda_min,base*(1+gamma*iteration)^(-power))
+        # lambda = max(lambda_min, base * (1 + gamma * iteration) ^ ( - power))
         self.iter += 1
         self.lamb = max(self.LambdaMin, self.base * (1 + self.gamma * self.iter) ** (-1 * self.power))
 
@@ -150,6 +149,6 @@ class SphereProduct(nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + '(' \
-               + 'in_features=' + str(self.in_features) \
-               + ', out_features=' + str(self.out_features) \
-               + ', m=' + str(self.m) + ')'
+            + 'in_features = ' + str(self.in_features) \
+            + ', out_features = ' + str(self.out_features) \
+            + ', m = ' + str(self.m) + ')'
