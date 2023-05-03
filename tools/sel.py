@@ -1,12 +1,8 @@
-import sys
-sys.path.append(".")
-sys.path.append("..")
-
 import os
 import random
 import argparse
 from tqdm import tqdm
-from utils.form import form
+from form import form
 from tkinter.simpledialog import Dialog
 from tkinter import Tk, Label
 from PIL import ImageTk, Image

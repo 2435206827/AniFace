@@ -1,14 +1,10 @@
-import sys
-sys.path.append(".")
-sys.path.append("..")
-
 import os
 import argparse
 import itertools
 from tqdm import tqdm
 from PIL import Image
 import torchvision.transforms as transforms
-from utils.form import form
+from form import form
 
 def _pad_calc(H, W):
     # There is no need to handle the parity issue of filling pixels, it will be resolved in Resize

@@ -1,11 +1,7 @@
-import sys
-sys.path.append(".")
-sys.path.append("..")
-
 import os
 import argparse
 import shutil
-from utils.form import form
+from form import form
 
 def delete_less(root_dir, n):
     """
