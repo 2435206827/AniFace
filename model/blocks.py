@@ -197,9 +197,9 @@ class Concat_RB(nn):
 class RDB(nn):
     def __init__(self, c_in, c_out):
         super(RDB, self).__init__()
-        self.conv1 = nn.Conv2d(c_in, c_out, kernel_size = 1, stride = 1, padding = "same")
-        self.resample = nn.AvgPool2d(2)
-        self.conv2 = nn.Conv2d(c_out, c_out, kernel_size = 3, stride = 1, padding = "same")
+        self.conv1 = nn.Conv2d(c_in, c_out, kernel_size = 1, padding = "same")
+        self.resample = nn.AvgPool2d(kernel_size = 2, stride = 2)
+        self.conv2 = nn.Conv2d(c_out, c_out, kernel_size = 3, padding = "same")
 
     def forward(self, x, resample = True):
         """

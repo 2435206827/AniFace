@@ -94,6 +94,6 @@ class Discrimator(nn):
         x_c = nn.LeakyReLU(0.2)(x_c)
 
         x_c = self.conv3(x_c)
-        x_c = torch.reshape(x_c, (x_c.shape[0], 1))
+        x_c = torch.reshape(x_c, (-1, 1))
         
         return x_c
