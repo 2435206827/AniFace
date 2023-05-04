@@ -1,7 +1,7 @@
 import os
 import argparse
 import shutil
-from form import form
+from form import *
 
 def delete_less(root_dir, n):
     """

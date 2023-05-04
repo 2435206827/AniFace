@@ -1,7 +1,7 @@
 import ffmpeg
 import argparse
 import os
-from form import form
+from form import *
 
 def video2images(file_path, interval = 5, output_path = ""):
     (

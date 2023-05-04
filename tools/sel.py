@@ -2,7 +2,7 @@ import os
 import random
 import argparse
 from tqdm import tqdm
-from form import form
+from form import *
 from tkinter.simpledialog import Dialog
 from tkinter import Tk, Label
 from PIL import ImageTk, Image
