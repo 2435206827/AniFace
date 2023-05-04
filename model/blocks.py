@@ -5,10 +5,10 @@ from torch import nn
 class mapping(nn):
     def __init__(self, dim = 512):
         super(mapping, self).__init__()
-        self.fc1 = nn.Linear(dim, dim)
-        self.fc2 = nn.Linear(dim, dim)
-        self.fc3 = nn.Linear(dim, dim)
-        self.fc4 = nn.Linear(dim, 256)
+        self.fc1 = nn.Linear(dim, 512)
+        self.fc2 = nn.Linear(512, 512)
+        self.fc3 = nn.Linear(512, 512)
+        self.fc4 = nn.Linear(512, 256)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -34,9 +34,8 @@ class AdaIN:
 
     def adaptive_instance_normalization(self, content_feat, style_feat):
         """
-        dim : (N, C, W, H)
+        dim: (N, C, W, H)
         """
-        # assert (content_feat.size()[: 2] == style_feat.size()[: 2])
         size = content_feat.size()
         style_mean, style_std = self._calc_mean_std(style_feat)
         content_mean, content_std = self._calc_mean_std(content_feat)
@@ -81,7 +80,13 @@ class AdaIN_RB(nn):
         super(AdaIN_RB, self).__init__()
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
-        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
+        if resample == "down":
+            scale_factor = 0.5
+        elif resample == "up":
+            scale_factor = 2
+        else:
+            scale_factor = 1
+        self.resample = lambda m: F.interpolate(m, scale_factor = scale_factor)
 
     def forward(self, x, w_id):
         m = AdaIN()(x, w_id)
@@ -106,7 +111,13 @@ class RB(nn):
         self.norm = nn.InstanceNorm2d(c_in)
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
-        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
+        if resample == "down":
+            scale_factor = 0.5
+        elif resample == "up":
+            scale_factor = 2
+        else:
+            scale_factor = 1
+        self.resample = lambda m: F.interpolate(m, scale_factor = scale_factor)
 
     def forward(self, x):
         m = self.norm(x)
@@ -126,13 +137,19 @@ class AFFA_RB(nn):
         c_in is the channel of input
         c_out is the channel of output
         s is the size of input
-        resample is whether down or up sample
+        resample is whether down / up sample / none
         """
         super(AFFA_RB, self).__init__()
         self.AFFA = AFFA_module(c_in, s)
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
-        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
+        if resample == "down":
+            scale_factor = 0.5
+        elif resample == "up":
+            scale_factor = 2
+        else:
+            scale_factor = 1
+        self.resample = lambda m: F.interpolate(m, scale_factor = scale_factor)
 
     def forward(self, x, z_a, w_id):
         m = self.AFFA(x, z_a)
@@ -158,7 +175,13 @@ class Concat_RB(nn):
         super(AFFA_RB, self).__init__()
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
-        self.resample = lambda m: F.interpolate(m, scale_factor = 0.5 if resample == "down" else 2)
+        if resample == "down":
+            scale_factor = 0.5
+        elif resample == "up":
+            scale_factor = 2
+        else:
+            scale_factor = 1
+        self.resample = lambda m: F.interpolate(m, scale_factor = scale_factor)
 
     def forward(self, x, z_a, w_id):
         m = torch.cat([x, z_a], 1)
