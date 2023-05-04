@@ -193,3 +193,25 @@ class Concat_RB(nn):
         m2 = self.res_conv(x)
         m2 = self.resample(m2)
         return m + m2
+    
+class RDB(nn):
+    def __init__(self, c_in, c_out):
+        super(RDB, self).__init__()
+        self.conv1 = nn.Conv2d(c_in, c_out, kernel_size = 1, stride = 1, padding = "same")
+        self.resample = nn.AvgPool2d(2)
+        self.conv2 = nn.Conv2d(c_out, c_out, kernel_size = 3, stride = 1, padding = "same")
+
+    def forward(self, x, resample = True):
+        """
+        resample: whether do
+        """
+        r = self.conv1(x)
+        r = self.resample(r) if resample else r
+
+        x = nn.InstanceNorm2d(x.shape[1])(x)
+        x = nn.LeakyReLU(0.2)(x)
+        x = self.conv2(x)
+        x = self.resample(x) if resample else x
+
+        return x + r
+    

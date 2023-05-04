@@ -71,13 +71,29 @@ class Generator(nn):
 class Discrimator(nn):
     def __init__(self):
         super(Discrimator, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, padding = "same")
+        self.RDB1 = RDB(64, 128)
+        self.RDB2 = RDB(128, 256)
+        self.RDB3 = RDB(256, 512)
+        self.RDB4 = RDB(512, 512)
+        self.RDB5 = RDB(512, 512)
+        self.RDB6 = RDB(512, 512)
+        self.conv2 = nn.Conv2d(512, 512, kernel_size = 4)
+        self.conv3 = nn.Conv2d(512, 1, kernel_size = 1)
 
     def forward(self, x_c):
-        pass
+        x_c = self.conv1(x_c)
+        x_c = self.RDB1(x_c)
+        x_c = self.RDB2(x_c)
+        x_c = self.RDB3(x_c)
+        x_c = self.RDB4(x_c)
+        x_c = self.RDB5(x_c)
+        x_c = self.RDB6(x_c)
 
-class AniFace(nn):
-    def __init__(self, arcface, gen, dis, num_x_s = 2):
-        super(AniFace, self).__init__()
+        x_c = self.conv2(x_c)
+        x_c = nn.LeakyReLU(0.2)(x_c)
 
-    def forward(self, x_t, x_s):
-        pass
+        x_c = self.conv3(x_c)
+        x_c = torch.reshape(x_c, (x_c.shape[0], 1))
+        
+        return x_c
