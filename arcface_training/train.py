@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # config
     try:
         with open("config.yml") as config_file:
-            opt = yaml.load(config_file)
+            opt = yaml.load(config_file, Loader = yaml.FullLoader)
     except Exception as e:
         print(e)
         assert False, "Fail to read config file"
