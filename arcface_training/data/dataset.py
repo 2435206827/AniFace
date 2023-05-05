@@ -10,7 +10,7 @@ class Dataset(data.Dataset):
         self.phase = phase
         self.input_shape = (3, 128, 128)
 
-        imgs = [os.path.join(root, img[: -1]) for img in imgs]
+        imgs = [os.path.join(root, img) for img in imgs]
         self.imgs = np.random.permutation(imgs)
 
         if self.phase == "train":
