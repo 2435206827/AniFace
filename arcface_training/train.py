@@ -136,7 +136,6 @@ if __name__ == "__main__":
 
                 start = time.time()
 
-        # BUG
         if i % opt["save_interval"] == 0 or i == opt["max_epoch"]:
             if not os.path.exists(opt["checkpoints_path"]):
                 os.makedirs(opt["checkpoints_path"])
