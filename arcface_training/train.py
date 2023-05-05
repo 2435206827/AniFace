@@ -17,7 +17,7 @@ from model.resnet import *
 from data.dataset import Dataset
 
 def save_model(model, save_path, name, iter_cnt):
-    save_name = os.path.join(save_path, name + "_" + str(iter_cnt) + ".pth")
+    save_name = os.path.join(save_path, "{}_{}.pth".format(name, iter_cnt))
     torch.save(model.state_dict(), save_name)
     return save_name
 
@@ -126,16 +126,17 @@ if __name__ == "__main__":
             iters = i * len(trainloader) + ii
 
             if iters % opt["print_freq"] == 0:
-                output = output.data.cpu().numpy()
-                output = np.argmax(output, axis=1)
+                output = np.argmax(output.data.cpu().numpy(), axis = 1)
                 label = label.data.cpu().numpy()
                 acc = np.mean((output == label).astype(int))
                 speed = opt["print_freq"] / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
+
                 print("{} train epoch {} iter {} {} iters/s loss {} acc {}".format(time_str, i, iters, speed, loss.item(), acc))
 
                 start = time.time()
 
+        # BUG
         if i % opt["save_interval"] == 0 or i == opt["max_epoch"]:
             if not os.path.exists(opt["checkpoints_path"]):
                 os.makedirs(opt["checkpoints_path"])
