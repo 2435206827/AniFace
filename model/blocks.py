@@ -20,8 +20,14 @@ class mapping(nn):
         x = self.fc4(x)
         return x
 
-class AdaIN:
-    # https://blog.csdn.net/weixin_35576881/article/details/91563347
+class AdaIN(nn):
+    """
+    @ref: https://blog.csdn.net/weixin_35576881/article/details/91563347
+    """
+
+    def __init__(self, lantent, channel):
+        self.linear_mean = nn.Linear(lantent, channel)
+        self.linear_std = nn.Linear(lantent, channel)
 
     def _calc_mean_std(self, feat: torch.Tensor, eps = 1e-5):
         # eps is a small value added to the variance to avoid divide-by-zero.
@@ -32,19 +38,15 @@ class AdaIN:
         feat_mean = feat.view(N, C, -1).mean(dim = 2).view(N, C, 1, 1)
         return feat_mean, feat_std
 
-    def adaptive_instance_normalization(self, content_feat, style_feat):
+    def forward(self, content_feat, style_feat):
         """
         dim: (N, C, W, H)
         """
-        size = content_feat.size()
-        style_mean, style_std = self._calc_mean_std(style_feat)
+        style_mean, style_std = self.linear_mean(style_feat), self.linear_std(style_feat)
         content_mean, content_std = self._calc_mean_std(content_feat)
 
-        normalized_feat = (content_feat - content_mean.expand(size)) / content_std.expand(size)
-        return normalized_feat * style_std.expand(size) + style_mean.expand(size)
-
-    def __call__(self, content_feat, style_feat):
-        return self.adaptive_instance_normalization(content_feat, style_feat)
+        normalized_feat = (content_feat - content_mean) / content_std
+        return normalized_feat * style_std + style_mean
 
 class AFFA_module(nn):
     def __init__(self, c, s):

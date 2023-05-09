@@ -1,5 +1,6 @@
 """
 @author: ronghuaiyang
+@ref: https://github.com/ronghuaiyang/arcface-pytorch
 """
 
 import os
