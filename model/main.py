@@ -4,9 +4,6 @@ from torch import nn
 
 class Enc_Dec(nn):
     def __init__(self):
-        """
-        Input: (3, 256, 256)
-        """
         super(Enc_Dec, self).__init__()
 
         # Encoder
@@ -28,6 +25,10 @@ class Enc_Dec(nn):
         self.Concat_RB = Concat_RB(64, 3, 256, "none")
 
     def forward(self, w_id, x_s):
+        """
+        :param w_id: (256)
+        :param x_s: (3, 256, 256)
+        """
         x_0 = self.conv1(x_s)
         x_1 = self.RB1(x_0)
         x_2 = self.RB2(x_1)
@@ -54,8 +55,8 @@ class Generator(nn):
 
     def forward(self, x_t, x_s):
         """
-        x_t: target face
-        x_s: source face
+        :param x_t: target face
+        :param x_s: source face
         """
         # x_t: (N, M, C, H, W)
         x_t = torch.transpose(x_t, 0, 1)    # (N, M, C, H, W) -> (M, N, C, H, W)
