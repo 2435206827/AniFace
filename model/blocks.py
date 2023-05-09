@@ -21,22 +21,11 @@ class mapping(nn):
         x = self.fc4(x)
         return x
 
-    def forward(self, x, w_id):
-        """
-        x: (N, C, W, H)
-        w_id: (M)
-        """
-        style_mean, style_std = self.linear_mean(w_id), self.linear_std(w_id)
-        content_mean, content_std = self._calc_mean_std(x)
-
-        return ((x - content_mean) / content_std) * style_std + style_mean
-
 class AFFA_module(nn):
     def __init__(self, c, s):
         """
-        param:
-        c is the channel of input
-        s is the size of input (equals to W or H)
+        :param c: the channel of input
+        :param s: the size of input (equals to W or H)
         """
         super(AFFA_module, self).__init__()
         self.size = s
@@ -57,10 +46,9 @@ class AFFA_module(nn):
 class AdaIN_RB(nn):
     def __init__(self, c_in, c_out, lantent, resample = "down"):
         """
-        param:
-        c_in is the channel of input
-        c_out is the channel of output
-        resample is whether down or up sample
+        :param c_in: the channel of input
+        :param c_out: the channel of output
+        :param resample: down / up sample / none
         """
         super(AdaIN_RB, self).__init__()
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
@@ -88,10 +76,9 @@ class AdaIN_RB(nn):
 class RB(nn):
     def __init__(self, c_in, c_out, resample = "down"):
         """
-        param:
-        c_in is the channel of input
-        c_out is the channel of output
-        resample is whether down or up sample
+        :param c_in: the channel of input
+        :param c_out: the channel of output
+        :param resample: down / up sample / none
         """
         super(RB, self).__init__()
         self.norm = nn.InstanceNorm2d(c_in)
@@ -119,11 +106,10 @@ class RB(nn):
 class AFFA_RB(nn):
     def __init__(self, c_in, c_out, lantent, s, resample = "down"):
         """
-        param:
-        c_in is the channel of input
-        c_out is the channel of output
-        s is the size of input
-        resample is whether down / up sample / none
+        :param c_in: the channel of input
+        :param c_out: the channel of output
+        :param s: the size of input
+        :param resample: down / up sample / none
         """
         super(AFFA_RB, self).__init__()
         self.AFFA = AFFA_module(c_in, s)
@@ -153,11 +139,10 @@ class AFFA_RB(nn):
 class Concat_RB(nn):
     def __init__(self, c_in, c_out, lantent, resample = "down"):
         """
-        param:
-        c_in is the channel of input
-        c_out is the channel of output
-        s is the size of input
-        resample is whether down or up sample
+        :param c_in: the channel of input
+        :param c_out: the channel of output
+        :param s: the size of input
+        :param resample: down / up sample / none
         """
         super(AFFA_RB, self).__init__()
         self.AdaIN = AdaIN(lantent, c_in)
@@ -184,6 +169,10 @@ class Concat_RB(nn):
 
 class RDB(nn):
     def __init__(self, c_in, c_out):
+        """
+        :param c_in: the channel of input
+        :param c_out: the channel of output
+        """
         super(RDB, self).__init__()
         self.conv1 = nn.Conv2d(c_in, c_out, kernel_size = 1, padding = "same")
         self.resample = nn.AvgPool2d(kernel_size = 2, stride = 2)
@@ -191,7 +180,7 @@ class RDB(nn):
 
     def forward(self, x, resample = True):
         """
-        resample: whether do
+        :param resample: whether apply resampling
         """
         r = self.conv1(x)
         r = self.resample(r) if resample else r
