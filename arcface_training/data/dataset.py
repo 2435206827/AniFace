@@ -5,7 +5,6 @@ import numpy as np
 from torchvision import transforms as T
 
 class Dataset(data.Dataset):
-
     def __init__(self, root, imgs, phase = "train"):
         self.phase = phase
         self.input_shape = (3, 128, 128)
