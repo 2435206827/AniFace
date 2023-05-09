@@ -19,13 +19,13 @@ class Enc_Dec(nn):
         self.RB6 = RB(512, 512, resample = "none")
 
         # Decoder
-        self.AdaIN_RB = AdaIN_RB(512, 512, 512, "none")
-        self.AFFA_RB5 = AFFA_RB(512, 512, 512, 2, "up")
-        self.AFFA_RB4 = AFFA_RB(512, 512, 512, 4, "up")
-        self.AFFA_RB3 = AFFA_RB(512, 256, 512, 8, "up")
-        self.AFFA_RB2 = AFFA_RB(256, 128, 512, 16, "up")
-        self.AFFA_RB1 = AFFA_RB(128, 64, 512, 32, "up")
-        self.Concat_RB = Concat_RB(64, 3, 512, "none")
+        self.AdaIN_RB = AdaIN_RB(512, 512, 256, "none")
+        self.AFFA_RB5 = AFFA_RB(512, 512, 256, 2, "up")
+        self.AFFA_RB4 = AFFA_RB(512, 512, 256, 4, "up")
+        self.AFFA_RB3 = AFFA_RB(512, 256, 256, 8, "up")
+        self.AFFA_RB2 = AFFA_RB(256, 128, 256, 16, "up")
+        self.AFFA_RB1 = AFFA_RB(128, 64, 256, 32, "up")
+        self.Concat_RB = Concat_RB(64, 3, 256, "none")
 
     def forward(self, w_id, x_s):
         x_0 = self.conv1(x_s)
