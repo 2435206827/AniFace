@@ -30,7 +30,9 @@ class AdaIN(nn):
         self.linear_std = nn.Linear(lantent, channel)
 
     def _calc_mean_std(self, feat: torch.Tensor, eps = 1e-5):
-        # eps is a small value added to the variance to avoid divide-by-zero.
+        """
+        eps is a small value added to the variance to avoid divide-by-zero.
+        """
         size = feat.size()
         N, C = size[: 2]
         feat_var = feat.view(N, C, -1).var(dim = 2) + eps
@@ -38,15 +40,15 @@ class AdaIN(nn):
         feat_mean = feat.view(N, C, -1).mean(dim = 2).view(N, C, 1, 1)
         return feat_mean, feat_std
 
-    def forward(self, content_feat, style_feat):
+    def forward(self, x, w_id):
         """
-        dim: (N, C, W, H)
+        x: (N, C, W, H)
+        w_id: (M)
         """
-        style_mean, style_std = self.linear_mean(style_feat), self.linear_std(style_feat)
-        content_mean, content_std = self._calc_mean_std(content_feat)
+        style_mean, style_std = self.linear_mean(w_id), self.linear_std(w_id)
+        content_mean, content_std = self._calc_mean_std(x)
 
-        normalized_feat = (content_feat - content_mean) / content_std
-        return normalized_feat * style_std + style_mean
+        return ((x - content_mean) / content_std) * style_std + style_mean
 
 class AFFA_module(nn):
     def __init__(self, c, s):
@@ -72,7 +74,7 @@ class AFFA_module(nn):
         return torch.mul(x, m) + torch.mul(z_a, 1 - m)
 
 class AdaIN_RB(nn):
-    def __init__(self, c_in, c_out, resample = "down"):
+    def __init__(self, c_in, c_out, lantent, resample = "down"):
         """
         param:
         c_in is the channel of input
@@ -81,6 +83,7 @@ class AdaIN_RB(nn):
         """
         super(AdaIN_RB, self).__init__()
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
+        self.AdaIN = AdaIN(lantent, c_in)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         if resample == "down":
             scale_factor = 0.5
@@ -91,7 +94,7 @@ class AdaIN_RB(nn):
         self.resample = lambda m: F.interpolate(m, scale_factor = scale_factor)
 
     def forward(self, x, w_id):
-        m = AdaIN()(x, w_id)
+        m = self.AdaIN(x, w_id)
         m = nn.LeakyReLU(0.2)(m)
         m = self.conv(m)
         m = self.resample(m)
@@ -133,7 +136,7 @@ class RB(nn):
         return m + m2
 
 class AFFA_RB(nn):
-    def __init__(self, c_in, c_out, s, resample = "down"):
+    def __init__(self, c_in, c_out, lantent, s, resample = "down"):
         """
         param:
         c_in is the channel of input
@@ -143,6 +146,7 @@ class AFFA_RB(nn):
         """
         super(AFFA_RB, self).__init__()
         self.AFFA = AFFA_module(c_in, s)
+        self.AdaIN = AdaIN(lantent, c_in)
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         if resample == "down":
@@ -155,7 +159,7 @@ class AFFA_RB(nn):
 
     def forward(self, x, z_a, w_id):
         m = self.AFFA(x, z_a)
-        m = AdaIN()(m, w_id)
+        m = AdaIN(m, w_id)
         m = nn.LeakyReLU(0.2)(m)
         m = self.conv(m)
         m = self.resample(m)
@@ -166,7 +170,7 @@ class AFFA_RB(nn):
         return m + m2
 
 class Concat_RB(nn):
-    def __init__(self, c_in, c_out, resample = "down"):
+    def __init__(self, c_in, c_out, lantent, resample = "down"):
         """
         param:
         c_in is the channel of input
@@ -175,6 +179,7 @@ class Concat_RB(nn):
         resample is whether down or up sample
         """
         super(AFFA_RB, self).__init__()
+        self.AdaIN = AdaIN(lantent, c_in)
         self.conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         self.res_conv = nn.Conv2d(c_in, c_out, kernel_size = 3, padding = 1)
         if resample == "down":
@@ -187,7 +192,7 @@ class Concat_RB(nn):
 
     def forward(self, x, z_a, w_id):
         m = torch.cat([x, z_a], 1)
-        m = AdaIN()(m, w_id)
+        m = AdaIN(m, w_id)
         m = nn.LeakyReLU(0.2)(m)
         m = self.conv(m)
         m = self.resample(m)
@@ -195,7 +200,7 @@ class Concat_RB(nn):
         m2 = self.res_conv(x)
         m2 = self.resample(m2)
         return m + m2
-    
+
 class RDB(nn):
     def __init__(self, c_in, c_out):
         super(RDB, self).__init__()
