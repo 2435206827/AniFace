@@ -1,10 +1,7 @@
-import sys
-sys.path.append("..")
-
 import os
 import argparse
 import shutil
-from utils.form import form
+from form import *
 
 def delete_less(root_dir, n):
     """
@@ -31,5 +28,4 @@ if __name__ == "__main__":
     assert not args["num"] < 1, "illegal number"
 
     tot = delete_less(args["dataset_path"], args["num"])
-    # BUG: 无法格式化颜色输出
     print(form("<green_ex>Successfully Completed. <red>{_tot}<green_ex> dirs have been deleted".format(_tot = tot)))

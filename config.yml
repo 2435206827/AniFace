@@ -1,0 +1,6 @@
+train_root: "/content/icf"
+checkpoints_path: "/content/checkpoints"
+save_interval: 5
+train_batch_size: 12  # batch size
+
+num_workers: 4  # workers for loading data

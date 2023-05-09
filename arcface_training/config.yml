@@ -1,0 +1,17 @@
+backbone: "resnet50"  # ["resnet18", "resnet34", "resnet50"]
+pretrained: True
+metric: "arc_margin"
+loss: "focal_loss"  # ["focal_loss", "cross_entropy_loss"]
+
+train_root: "/content/icf"
+checkpoints_path: "/content/checkpoints"
+save_interval: 5
+train_batch_size: 128  # batch size
+
+optimizer: "sgd"  # "sgd" or "Adam"
+num_workers: 4  # workers for loading data
+print_freq: 100  # print info every N batch
+max_epoch: 50
+lr: 0.1  # initial learning rate
+lr_step: 10
+weight_decay: 0.0005
