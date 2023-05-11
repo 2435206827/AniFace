@@ -19,7 +19,7 @@ from data.dataset import Dataset
 
 def save_model(model, save_path, name, iter_cnt):
     save_name = os.path.join(save_path, "{}_{}.pth".format(name, iter_cnt))
-    torch.save(model.state_dict(), save_name)
+    torch.save(model, save_name)
     return save_name
 
 def list_images(directory):
