@@ -3,8 +3,11 @@ pretrained: True
 metric: "arc_margin"
 loss: "focal_loss"  # ["focal_loss", "cross_entropy_loss"]
 
+use_checkpoint: False
+checkpoint_path: "/path/to/your/file.pth"
+
 train_root: "/content/icf"
-checkpoints_path: "/content/checkpoints"
+saving_path: "/content/checkpoints"
 save_interval: 5
 train_batch_size: 128  # batch size
 

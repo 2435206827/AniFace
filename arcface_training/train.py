@@ -16,6 +16,7 @@ from model.focal_loss import *
 from model.metrics import *
 from model.resnet import *
 from data.dataset import Dataset
+from tools.form import form
 
 def save_model(model, save_path, name, iter_cnt):
     save_name = os.path.join(save_path, "{}_{}.pth".format(name, iter_cnt))
@@ -48,11 +49,11 @@ if __name__ == "__main__":
     # load config & prepare dataset
     device = torch.device("cuda")
     root = opt["train_root"]
+    if not os.path.exists(opt["saving_path"]):
+        os.makedirs(opt["saving_path"])
 
     train_dataset = Dataset(root, list_images(root))
     trainloader = data.DataLoader(train_dataset, batch_size = opt["train_batch_size"], shuffle = True, num_workers = opt["num_workers"])
-
-    print("{} train iters per epoch:".format(len(trainloader)))
 
     # loss
     if opt["loss"] == "focal_loss":
@@ -62,17 +63,22 @@ if __name__ == "__main__":
     else:
         assert False, "Invaild loss function: {}".format(opt["loss"])
 
-    # backbone
-    if opt["backbone"] == "resnet18":
-        model = torchvision.models.resnet18(pretrained = opt["pretrained"])
-    elif opt["backbone"] == "resnet34":
-        model = torchvision.models.resnet34(pretrained = opt["pretrained"])
-    elif opt["backbone"] == "resnet50":
-        model = torchvision.models.resnet50(pretrained = opt["pretrained"])
+    if not opt["use_checkpoint"]:
+        # backbone
+        if opt["backbone"] == "resnet18":
+            model = torchvision.models.resnet18(pretrained = opt["pretrained"])
+        elif opt["backbone"] == "resnet34":
+            model = torchvision.models.resnet34(pretrained = opt["pretrained"])
+        elif opt["backbone"] == "resnet50":
+            model = torchvision.models.resnet50(pretrained = opt["pretrained"])
+        else:
+            assert False, "Invaild model: {}".format(opt["backbone"])
+        model.fc = nn.Linear(model.fc.in_features, 512)
+        nn.init.xavier_uniform_(model.fc.weight)
     else:
-        assert False, "Invaild model: {}".format(opt["backbone"])
-    model.fc = nn.Linear(model.fc.in_features, 512)
-    nn.init.xavier_uniform_(model.fc.weight)
+        # pth
+        assert os.path.exists(opt["checkpoint_path"]), "{} does not exists.".format(opt["checkpoint_path"])
+        model = torch.load(opt["checkpoint_path"])
     
     num_classes = get_classes_num(root)
 
@@ -102,16 +108,17 @@ if __name__ == "__main__":
     scheduler = StepLR(optimizer, step_size = opt["lr_step"], gamma = 0.1)
 
     # start to train
-    print(model)
     model.to(device)
     model = DataParallel(model)
     metric_fc.to(device)
     metric_fc = DataParallel(metric_fc)
 
+    print(form("<blue>" + str(model)))
+    print(form("<blue>{} train iters per epoch:".format(len(trainloader))))
+
     start = time.time()
     for i in range(opt["max_epoch"]):
         scheduler.step()
-
         model.train()
         for ii, data in enumerate(trainloader):
             data_input, label = data
@@ -138,7 +145,5 @@ if __name__ == "__main__":
                 start = time.time()
 
         if i % opt["save_interval"] == 0 or i == opt["max_epoch"]:
-            if not os.path.exists(opt["checkpoints_path"]):
-                os.makedirs(opt["checkpoints_path"])
-            save_model(model, opt["checkpoints_path"], opt["backbone"], i)
+            save_model(model, opt["saving_path"], opt["backbone"], i)
             print("model was saved.")
